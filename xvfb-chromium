@@ -3,20 +3,13 @@
 _kill_procs() {
   kill -TERM $chromium
   wait $chromium
-  kill -TERM $xvfb
 }
 
 # Setup a trap to catch SIGTERM and relay it to child processes
 trap _kill_procs SIGTERM
 
-# Start Xvfb
-Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp &
-xvfb=$!
-
-export DISPLAY=:99
-
-chromium --no-sandbox $@ &
+# Start Chrome inside xvfb
+xvfb-run -a -s "-screen 0 1920x1080x24 -nolisten tcp" chromium --no-sandbox $@ &
 chromium=$!
 
 wait $chromium
-wait $xvfb
